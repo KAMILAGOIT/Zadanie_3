@@ -1,0 +1,39 @@
+config:
+  target: "https://catfact.ninja"
+  phases:
+    - duration: 300
+      arrivalRate: 5
+
+scenarios:
+  - flow:
+      - get:
+          url: "/facts"
+      - post:
+          url: "/facts"
+          json:
+            fact: "{{ randomFact }}"
+      - ensure:
+          - response_code:
+              equals: 200
+      - ensure:
+          - response_time:
+              less_than: 2000
+      - ensure:
+          - metrics:
+              - response_time:
+                  type: "response_time"
+                  threshold: 95
+                  value: 1000
+              - errors:
+                  type: "error_rate"
+                  threshold: 1
+                  value: 0
+              - requests:
+                  type: "requests_per_second"
+                  threshold: 1
+                  value: 5
+
+payload1:
+  path: "./payload1.json"
+  fields:
+    - "randomFact"
